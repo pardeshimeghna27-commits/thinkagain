@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThinkAgain - Because some things deserve a second look.</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f2f6f3;
+    --terra: #4a8c6f;
+    --terra-soft: #7ab99a;
+    --terra-pale: #ddeee6;
+    --deep: #12251c;
+    --mid: #3a6652;
+    --muted: #6a9880;
+    --card: #f9fdfb;
+    --border: #cfe3d8;
+    --shadow: 0 4px 32px rgba(18,37,28,0.09);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--deep); height:100%; overflow:hidden; }
+  body::before { content:''; position:fixed; inset:0; background: radial-gradient(ellipse 70% 50% at 15% 0%, rgba(74,140,111,0.08) 0%, transparent 60%), radial-gradient(ellipse 50% 70% at 85% 100%, rgba(122,185,154,0.1) 0%, transparent 55%); pointer-events:none; z-index:0; }
+
+  .screen { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:20px; z-index:1; transition:opacity 0.55s ease, transform 0.55s ease; }
+  .screen.out { opacity:0; pointer-events:none; transform:translateY(18px); }
+  .screen.gone { display:none !important; }
+
+  /* ENTRY */
+  .entry-card { background:var(--card); border:1px solid var(--border); border-radius:32px; padding:48px 52px 40px; max-width:580px; width:100%; box-shadow:var(--shadow); text-align:center; animation:fadeUp 0.9s ease both; }
+  .logo-mark { width:64px; height:64px; margin:0 auto 24px; }
+  .logo-mark svg { width:100%; height:100%; }
+  .brand { font-family:'Lora',serif; font-size:2.2rem; font-weight:600; color:var(--deep); letter-spacing:-0.5px; margin-bottom:6px; }
+  .brand span { color:var(--terra); }
+  .tagline { font-family:'Lora',serif; font-style:italic; color:var(--muted); font-size:1rem; margin-bottom:32px; }
+  .paths { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px; }
+  .path-card { background:var(--bg); border:1.5px solid var(--border); border-radius:18px; padding:18px 16px; cursor:pointer; text-align:left; transition:all 0.22s; }
+  .path-card:hover { border-color:var(--terra-soft); transform:translateY(-2px); box-shadow:0 6px 20px rgba(74,140,111,0.13); }
+  .path-icon { font-size:1.4rem; margin-bottom:8px; }
+  .path-title { font-size:0.88rem; font-weight:500; color:var(--deep); margin-bottom:3px; }
+  .path-desc { font-size:0.77rem; color:var(--muted); line-height:1.4; }
+  .privacy-strip { display:flex; align-items:center; gap:8px; justify-content:center; font-size:0.79rem; color:var(--muted); padding-top:8px; }
+  .pdot { width:4px; height:4px; border-radius:50%; background:var(--terra-soft); }
+
+  /* PRIVACY */
+  .pcard { background:var(--card); border:1px solid var(--border); border-radius:28px; padding:44px 48px; max-width:520px; width:100%; box-shadow:var(--shadow); animation:fadeUp 0.7s ease both; }
+  .pcard h2 { font-family:'Lora',serif; font-size:1.5rem; margin-bottom:6px; color:var(--deep); }
+  .psub { font-size:0.88rem; color:var(--muted); margin-bottom:24px; line-height:1.5; }
+  .privacy-rows { display:flex; flex-direction:column; gap:12px; margin-bottom:24px; }
+  .prow { display:flex; gap:12px; align-items:flex-start; font-size:0.88rem; color:var(--mid); line-height:1.5; }
+  .pi { width:28px; height:28px; border-radius:8px; background:var(--terra-pale); display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+  .escape-note { background:var(--terra-pale); border-radius:12px; padding:12px 16px; font-size:0.82rem; color:var(--mid); margin-bottom:22px; line-height:1.5; }
+  .btn { width:100%; background:linear-gradient(135deg,var(--terra),#35705a); color:white; border:none; padding:15px 32px; border-radius:50px; font-family:'DM Sans',sans-serif; font-size:0.97rem; font-weight:500; cursor:pointer; box-shadow:0 4px 20px rgba(74,140,111,0.28); transition:transform 0.2s,box-shadow 0.2s; }
+  .btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(74,140,111,0.38); }
+
+  /* CHAT */
+  #chat-screen { padding:0; align-items:stretch; justify-content:stretch; flex-direction:column; }
+  .chat-top { background:var(--card); border-bottom:1px solid var(--border); padding:14px 24px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .chat-brand { display:flex; align-items:center; gap:10px; }
+  .chat-logo { width:36px; height:36px; background:linear-gradient(135deg,var(--terra),var(--terra-soft)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .chat-brand-name { font-family:'Lora',serif; font-size:1rem; font-weight:600; color:var(--deep); }
+  .chat-brand-sub { font-size:0.75rem; color:var(--muted); }
+  .exit-btn { background:transparent; border:1px solid var(--border); color:var(--muted); padding:6px 14px; border-radius:20px; font-size:0.8rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+  .exit-btn:hover { background:var(--terra); color:white; border-color:var(--terra); }
+  .messages { flex:1; overflow-y:auto; padding:24px 24px 8px; display:flex; flex-direction:column; gap:14px; scroll-behavior:smooth; }
+  .msg { display:flex; gap:10px; animation:fadeUp 0.38s ease both; }
+  .msg.user { align-self:flex-end; flex-direction:row-reverse; max-width:78%; }
+  .msg.ai { align-self:flex-start; max-width:82%; }
+  .mavatar { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; margin-top:3px; }
+  .ai .mavatar { background:linear-gradient(135deg,var(--terra),var(--terra-soft)); }
+  .user .mavatar { background:var(--deep); color:#fff; font-size:10px; font-weight:500; }
+  .bubble { padding:13px 17px; border-radius:20px; font-size:0.92rem; line-height:1.65; }
+  .ai .bubble { background:var(--card); border:1px solid var(--border); border-bottom-left-radius:5px; color:var(--deep); }
+  .user .bubble { background:var(--deep); color:#fff; border-bottom-right-radius:5px; }
+  .typing-wrap { display:flex; gap:10px; align-self:flex-start; }
+  .typing-ind { display:flex; gap:5px; align-items:center; padding:13px 17px; background:var(--card); border:1px solid var(--border); border-radius:20px; border-bottom-left-radius:5px; }
+  .tdot { width:7px; height:7px; border-radius:50%; background:var(--terra-soft); animation:bounce 1.1s infinite; }
+  .tdot:nth-child(2){animation-delay:.18s} .tdot:nth-child(3){animation-delay:.36s}
+  .chips-area { padding:4px 24px 10px; display:flex; flex-wrap:wrap; gap:8px; min-height:10px; }
+  .chip { background:var(--card); border:1.5px solid var(--border); color:var(--mid); padding:9px 18px; border-radius:50px; font-size:0.85rem; cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; animation:fadeUp 0.35s ease both; }
+  .chip:hover { background:var(--terra); color:#fff; border-color:var(--terra); transform:translateY(-1px); }
+  .input-row { background:var(--card); border-top:1px solid var(--border); padding:14px 20px; display:flex; gap:10px; align-items:flex-end; flex-shrink:0; }
+  textarea { flex:1; background:var(--bg); border:1px solid var(--border); border-radius:16px; padding:11px 15px; font-family:'DM Sans',sans-serif; font-size:0.91rem; color:var(--deep); resize:none; max-height:110px; line-height:1.5; outline:none; transition:border-color 0.2s; }
+  textarea:focus { border-color:var(--terra-soft); }
+  textarea::placeholder { color:var(--muted); }
+  .send-btn { width:42px; height:42px; background:linear-gradient(135deg,var(--terra),#35705a); border:none; border-radius:50%; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:transform 0.2s,box-shadow 0.2s; box-shadow:0 3px 12px rgba(74,140,111,0.3); }
+  .send-btn:hover { transform:scale(1.08); box-shadow:0 6px 18px rgba(74,140,111,0.4); }
+  .send-btn svg { width:17px; height:17px; fill:white; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+  .messages::-webkit-scrollbar{width:3px} .messages::-webkit-scrollbar-track{background:transparent} .messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  @media(max-width:600px){ .entry-card{padding:30px 20px 26px} .brand{font-size:1.75rem} .paths{grid-template-columns:1fr} .messages{padding:16px 16px 6px} .chips-area{padding:4px 14px 8px} .input-row{padding:12px 14px} .pcard{padding:30px 22px} }
+</style>
+</head>
+<body>
+
+<!-- ENTRY SCREEN -->
+<div class="screen" id="entry-screen">
+  <div class="entry-card">
+    <div class="logo-mark">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="30" fill="#ddeee6"/>
+        <path d="M20 32 A12 12 0 1 1 32 44" stroke="#4a8c6f" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <polyline points="28,40 32,44 28,48" stroke="#4a8c6f" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="32" cy="29" r="3.5" fill="#4a8c6f" opacity="0.7"/>
+        <circle cx="32" cy="22" r="2" fill="#7ab99a" opacity="0.6"/>
+        <circle cx="32" cy="17" r="1.2" fill="#7ab99a" opacity="0.4"/>
+      </svg>
+    </div>
+    <div class="brand">Think<span>Again</span></div>
+    <div class="tagline">Because some things deserve a second look.</div>
+    <div class="paths">
+      <div class="path-card" id="p-off">
+        <div class="path-icon">&#128173;</div>
+        <div class="path-title">Something feels off</div>
+        <div class="path-desc">A situation, a pattern, a moment that did not sit right</div>
+      </div>
+      <div class="path-card" id="p-self">
+        <div class="path-icon">&#129710;</div>
+        <div class="path-title">I want to understand myself</div>
+        <div class="path-desc">My reactions, my anger, the way I show up in relationships</div>
+      </div>
+      <div class="path-card" id="p-other">
+        <div class="path-icon">&#129309;</div>
+        <div class="path-title">Someone I care about</div>
+        <div class="path-desc">I am worried about a friend, partner, or family member</div>
+      </div>
+      <div class="path-card" id="p-learn">
+        <div class="path-icon">&#127807;</div>
+        <div class="path-title">Just here to learn</div>
+        <div class="path-desc">Curious about healthy relationships and what they look like</div>
+      </div>
+    </div>
+    <div class="privacy-strip">
+      <span>&#128274; Nothing is saved</span>
+      <div class="pdot"></div>
+      <span>No account needed</span>
+      <div class="pdot"></div>
+      <span>Always confidential</span>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY SCREEN -->
+<div class="screen out gone" id="privacy-screen">
+  <div class="pcard">
+    <h2>Before we begin &#127807;</h2>
+    <p class="psub">A few things we want you to know so you feel completely safe here.</p>
+    <div class="privacy-rows">
+      <div class="prow"><div class="pi">&#128274;</div><div><strong>Nothing is saved.</strong> This conversation only exists in your browser. Close the tab and it is gone.</div></div>
+      <div class="prow"><div class="pi">&#128584;</div><div><strong>Fully anonymous.</strong> No name, no email, no account. We do not know who you are.</div></div>
+      <div class="prow"><div class="pi">&#128172;</div><div><strong>Not therapy.</strong> ThinkAgain is a reflection and awareness tool, not a clinical service or crisis line.</div></div>
+      <div class="prow"><div class="pi">&#128682;</div><div><strong>Leave anytime.</strong> The Quick Exit button closes this instantly. Or press Escape.</div></div>
+      <div class="prow"><div class="pi">&#129293;</div><div><strong>No judgment.</strong> Whatever you share, you will be met with warmth, never labels or blame.</div></div>
+    </div>
+    <div class="escape-note">&#9889; <strong>Quick tip:</strong> If you ever need to leave fast, press <strong>Escape</strong> on your keyboard or tap Quick Exit in the top right. This page will close immediately.</div>
+    <button class="btn" id="start-btn">I understand, I am ready</button>
+  </div>
+</div>
+
+<!-- CHAT SCREEN -->
+<div class="screen out gone" id="chat-screen">
+  <div class="chat-top">
+    <div class="chat-brand">
+      <div class="chat-logo">&#127807;</div>
+      <div>
+        <div class="chat-brand-name">ThinkAgain</div>
+        <div class="chat-brand-sub">Here with you, take your time</div>
+      </div>
+    </div>
+    <button class="exit-btn" id="exit-btn">Quick Exit &#10005;</button>
+  </div>
+  <div class="messages" id="messages"></div>
+  <div class="chips-area" id="chips-area"></div>
+  <div class="input-row">
+    <textarea id="user-input" placeholder="Type here, or choose an option above..." rows="1"></textarea>
+    <button class="send-btn" id="send-btn">
+      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  var chatHistory = [];
+  var busy = false;
+  var pathData = null;
+
+  var PATHS = {
+    off: {
+      firstMsg: "I am really glad you are here.\n\nSometimes something happens - a moment, a conversation, a feeling after a message is sent - and you just cannot shake it. Even if you cannot name it yet.\n\nTell me, what has been sitting with you lately? It can be something small.",
+      chips: ["A specific thing that happened recently", "A pattern I keep noticing", "A feeling I cannot explain", "I am not sure where to start"]
+    },
+    self: {
+      firstMsg: "That takes real courage - choosing to look inward.\n\nSome of the most meaningful change starts exactly here, with that kind of honesty.\n\nHow are you feeling about yourself in your relationship right now? Be as honest as you want to be.",
+      chips: ["I react in ways I do not like", "I get angry and do not know why", "I think I might be hurting someone", "I want to be better but do not know how"]
+    },
+    other: {
+      firstMsg: "It says a lot about you that you are here for someone else.\n\nWatching someone you love go through something difficult - especially when you cannot quite name what is wrong - can feel really isolating.\n\nWhat has been worrying you about them?",
+      chips: ["They seem unhappy but will not talk", "I have noticed things that concern me", "Their partner worries me", "I want to support but do not know how"]
+    },
+    learn: {
+      firstMsg: "Love that you are here just to learn - that is already a form of care.\n\nLet me start with something a lot of people find eye-opening.\n\nImagine this: After an argument, one partner goes completely silent for days - no explanation, no response. The other is left feeling confused and like they did something terribly wrong.\n\nWhat does that feel like to you - normal conflict, or something else?",
+      chips: ["That sounds like normal behaviour", "Something about it feels off", "I have experienced something like this", "I honestly do not know"]
+    }
+  };
+
+  var SYSTEM_PROMPT = [
+    "You are ThinkAgain, a warm, calm, deeply empathetic AI guide helping people understand",
+    "their relationships and emotional wellbeing. You speak like a caring, wise friend. You are NOT a therapist.",
+    "",
+    "CORE RULES:",
+    "- NEVER use labels like abuser, victim, narcissist, toxic. Say: this pattern, this dynamic, this feeling.",
+    "- SHORT responses only. Max 3 to 4 sentences, then a question.",
+    "- Move SLOWLY. One question, one thread at a time.",
+    "- Use the person's own words back to them.",
+    "- Never diagnose. If something serious emerges, gently suggest a counsellor can help.",
+    "- Always warm, never clinical. No bullet points. Conversational prose only.",
+    "",
+    "AWARENESS (early): Help them notice and name what they are experiencing without telling them what it is.",
+    "Ask about specific moments and feelings.",
+    "",
+    "REFLECTION (mid): Gently surface patterns. Introduce ideas softly.",
+    "Never say 'that IS gaslighting'. Say 'that sounds like it might be worth exploring'.",
+    "",
+    "GUIDANCE (later): Only offer tools and resources when the person signals they are ready.",
+    "Affirm their agency.",
+    "",
+    "When it would help to offer response options, end your message with exactly this format:",
+    "[CHIPS: option 1 | option 2 | option 3]",
+    "Keep chips short, 5 words max each."
+  ].join("\n");
+
+  // Screen transitions
+  function showScreen(id) {
+    document.querySelectorAll(".screen").forEach(function(s) {
+      if (s.id !== id) {
+        s.classList.add("out");
+        setTimeout(function() { s.classList.add("gone"); }, 560);
+      }
+    });
+    var t = document.getElementById(id);
+    t.classList.remove("gone");
+    setTimeout(function() { t.classList.remove("out"); }, 20);
+  }
+
+  // Path selection
+  function choosePath(key) {
+    pathData = PATHS[key];
+    showScreen("privacy-screen");
+  }
+
+  document.getElementById("p-off").addEventListener("click", function() { choosePath("off"); });
+  document.getElementById("p-self").addEventListener("click", function() { choosePath("self"); });
+  document.getElementById("p-other").addEventListener("click", function() { choosePath("other"); });
+  document.getElementById("p-learn").addEventListener("click", function() { choosePath("learn"); });
+
+  // Quick exit
+  function quickExit() {
+    document.body.innerHTML = "";
+    window.location.replace("https://www.google.com");
+  }
+  document.addEventListener("keydown", function(e) { if (e.key === "Escape") quickExit(); });
+  document.getElementById("exit-btn").addEventListener("click", quickExit);
+
+  // Start chat
+  document.getElementById("start-btn").addEventListener("click", function() {
+    showScreen("chat-screen");
+    setTimeout(function() {
+      showTyping(function() {
+        appendMsg("ai", pathData.firstMsg);
+        chatHistory.push({ role: "assistant", content: pathData.firstMsg });
+        if (pathData.chips) showChips(pathData.chips);
+      });
+    }, 400);
+  });
+
+  // Append message
+  function appendMsg(role, text) {
+    var msgs = document.getElementById("messages");
+    var wrap = document.createElement("div");
+    wrap.className = "msg " + role;
+
+    var av = document.createElement("div");
+    av.className = "mavatar";
+    av.textContent = role === "ai" ? "\uD83C\uDF3F" : "You";
+
+    var bub = document.createElement("div");
+    bub.className = "bubble";
+    bub.innerHTML = text.replace(/\n/g, "<br>");
+
+    wrap.appendChild(av);
+    wrap.appendChild(bub);
+    msgs.appendChild(wrap);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  // Typing indicator
+  function showTyping(callback) {
+    var msgs = document.getElementById("messages");
+    var wrap = document.createElement("div");
+    wrap.className = "typing-wrap";
+    wrap.id = "typing-indicator";
+
+    var av = document.createElement("div");
+    av.className = "mavatar";
+    av.style.cssText = "background:linear-gradient(135deg,#4a8c6f,#7ab99a)";
+    av.textContent = "\uD83C\uDF3F";
+
+    var ind = document.createElement("div");
+    ind.className = "typing-ind";
+    ind.innerHTML = "<div class='tdot'></div><div class='tdot'></div><div class='tdot'></div>";
+
+    wrap.appendChild(av);
+    wrap.appendChild(ind);
+    msgs.appendChild(wrap);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    setTimeout(function() {
+      var el = document.getElementById("typing-indicator");
+      if (el) el.remove();
+      callback();
+    }, 1400 + Math.random() * 1200);
+  }
+
+  // Chips
+  function showChips(options) {
+    var area = document.getElementById("chips-area");
+    area.innerHTML = "";
+    options.forEach(function(opt, i) {
+      var c = document.createElement("button");
+      c.className = "chip";
+      c.textContent = opt;
+      c.style.animationDelay = (i * 0.07) + "s";
+      c.addEventListener("click", function() {
+        area.innerHTML = "";
+        handleUser(opt);
+      });
+      area.appendChild(c);
+    });
+  }
+
+  // API call
+  function callAPI(userMsg, callback) {
+    chatHistory.push({ role: "user", content: userMsg });
+    fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 800,
+        system: SYSTEM_PROMPT,
+        messages: chatHistory
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var text = (data.content && data.content[0] && data.content[0].text) || "I am here with you. Take your time.";
+      var chips = [];
+      var m = text.match(/\[CHIPS:\s*([^\]]+)\]/);
+      if (m) {
+        chips = m[1].split("|").map(function(s) { return s.trim(); }).filter(Boolean);
+        text = text.replace(/\[CHIPS:[^\]]+\]/, "").trim();
+      }
+      chatHistory.push({ role: "assistant", content: text });
+      callback(text, chips);
+    })
+    .catch(function() {
+      callback("I am here with you. Take your time whenever you are ready.", []);
+    });
+  }
+
+  // Handle user message
+  function handleUser(text) {
+    if (busy || !text.trim()) return;
+    busy = true;
+    document.getElementById("chips-area").innerHTML = "";
+    appendMsg("user", text);
+    showTyping(function() {
+      callAPI(text, function(reply, chips) {
+        appendMsg("ai", reply);
+        if (chips && chips.length) showChips(chips);
+        busy = false;
+      });
+    });
+  }
+
+  // Send button
+  document.getElementById("send-btn").addEventListener("click", function() {
+    var inp = document.getElementById("user-input");
+    var t = inp.value.trim();
+    if (!t || busy) return;
+    inp.value = "";
+    inp.style.height = "auto";
+    handleUser(t);
+  });
+
+  // Enter key
+  document.getElementById("user-input").addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById("send-btn").click();
+    }
+  });
+
+  // Auto resize textarea
+  document.getElementById("user-input").addEventListener("input", function() {
+    this.style.height = "auto";
+    this.style.height = Math.min(this.scrollHeight, 110) + "px";
+  });
+
+}());
+</script>
+</body>
+</html>
